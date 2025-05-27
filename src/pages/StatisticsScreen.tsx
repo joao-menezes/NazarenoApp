@@ -6,29 +6,33 @@ import {
     StyleSheet,
     Dimensions,
     TouchableOpacity,
+    GestureResponderEvent,
 } from "react-native";
-import { LineChart } from "react-native-chart-kit";
-import { useTranslation } from "react-i18next";
-import { useTheme } from "../context/ThemeContext";
-import { ApiService } from "../service/api.service";
-import { RoleEnum } from "../common/enums/role.enum";
-import { User } from "../common/interface/user.interface";
+import {LineChart} from "react-native-chart-kit";
+import {useTranslation} from "react-i18next";
+import {useTheme} from "../context/ThemeContext";
+import {ApiService} from "../service/api.service";
+import {RoleEnum} from "../common/enums/role.enum";
+import {User} from "../common/interface/user.interface";
 import {Avatar} from "@rneui/themed";
 import toastService from "../service/toast.service";
 import {Ionicons} from "@expo/vector-icons";
+import {PdfButton} from "../Components/PdfButton";
+import Toast from "react-native-toast-message";
+import ToastService from "../service/toast.service";
 
 export const StatisticsScreen = () => {
-    const { t } = useTranslation();
-    const { theme } = useTheme();
+    const {t} = useTranslation();
+    const {theme} = useTheme();
 
     const TOTAL_CLASSES = 100;
 
     const [users, setUsers] = useState<User[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLoading, setLoading] = useState<boolean>(true);
 
     const fetchUsers = useCallback(async () => {
         try {
-            setIsLoading(true);
+            setLoading(true);
 
             const response = await ApiService.getUsers();
 
@@ -48,7 +52,7 @@ export const StatisticsScreen = () => {
         } catch (err) {
             toastService.showError(t("errorFetchingUsers"));
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     }, [t]);
 
@@ -100,127 +104,128 @@ export const StatisticsScreen = () => {
         (a, b) => b.attendedClasses - a.attendedClasses
     );
 
-    console.log("sorted users", users.map(user => user.role));
     const top3Students = sortedUsers
         .filter(user => user.role === RoleEnum.Student)
         .slice(0, 3);
 
     return (
-        <ScrollView
-            style={[styles.container, { backgroundColor: theme.colors.background }]}
-            contentContainerStyle={styles.scrollContent}
-        >
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.colors.text }]}>
-                    {t("attendanceStats")}
-                </Text>
-                <TouchableOpacity
-                    style={[styles.refreshButton, { backgroundColor: theme.colors.primary }]}
-                    onPress={fetchUsers}
-                    activeOpacity={0.7}
-                >
-                    <Ionicons name="refresh-outline" size={20} color="white" />
-                </TouchableOpacity>
-            </View>
-
-            <View
-                style={[styles.statsContainer, { backgroundColor: theme.colors.card }]}
-            >
-                <Text style={[styles.statText, { color: theme.colors.text }]}>
-                    {t("averageAttendance")}:{" "}
-                    <Text style={[styles.statHighlight, { color: theme.colors.primary }]}>
-                        {averagePresence.toFixed(2)}%
-                    </Text>
-                </Text>
-            </View>
-
-            <View
-                style={[styles.statsContainer, { backgroundColor: theme.colors.card }]}
-            >
-                <Text style={[styles.statText, { color: theme.colors.text }]}>
-                    {t("monthlyAverage")}:{" "}
-                    <Text style={[styles.statHighlight, { color: theme.colors.primary }]}>
-                        {monthlyPresence.toFixed(2)}%
-                    </Text>
-                </Text>
-                <Text style={[styles.statText, { color: theme.colors.text }]}>
-                    {t("annualAverage")}:{" "}
-                    <Text style={[styles.statHighlight, { color: theme.colors.primary }]}>
-                        {annualPresence.toFixed(2)}%
-                    </Text>
-                </Text>
-            </View>
-
-            <Text style={[styles.subTitle, { color: theme.colors.text }]}>
-                {t("attendancePerStudent")}
-            </Text>
-
+        <>
             <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingRight: 20 }}
+                style={[styles.container, {backgroundColor: theme.colors.background}]}
+                contentContainerStyle={styles.scrollContent}
             >
-                {/* LineChart permanece exatamente igual */}
-                <LineChart
-                    data={{
-                        labels:
-                            sortedUsers.length > 0
-                                ? sortedUsers.map((user) => user.username.split(".")[0])
-                                : ["No data"],
-                        datasets: [
-                            {
-                                data:
-                                    sortedUsers.length > 0
-                                        ? sortedUsers.map((user) => user.attendedClasses)
-                                        : [0],
-                                strokeWidth: 2,
-                            },
-                        ],
-                    }}
-                    width={Math.max(
-                        Dimensions.get("window").width,
-                        sortedUsers.length * 70
-                    )}
-                    height={220}
-                    chartConfig={{
-                        backgroundColor: theme.colors.card,
-                        backgroundGradientFrom: theme.colors.primary,
-                        backgroundGradientTo: theme.colors.primary,
-                        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                        strokeWidth: 2,
-                        barPercentage: 0.5,
-                        propsForDots: {
-                            r: "5",
-                            strokeWidth: "2",
-                            stroke: theme.colors.primary,
-                        },
-                    }}
-                    style={styles.chart}
-                />
-            </ScrollView>
-
-            <Text style={[styles.subTitle, { color: theme.colors.text }]}>
-                🎖️ {t("top3Students")}
-            </Text>
-
-            {top3Students.map((student, index) => (
-                <View
-                    key={student.userId}
-                    style={[styles.topStudentContainer, { backgroundColor: theme.colors.card }]}
-                >
-                    <Avatar rounded size={56} source={{ uri: student.userPicUrl }} />
-                    <View style={styles.userInfo}>
-                        <Text style={[styles.userName, { color: theme.colors.text }]}>
-                            {`${index + 1}º - ${student.username}`}
-                        </Text>
-                        <Text style={[styles.userPresence, { color: theme.colors.primary }]}>
-                            {student.attendedClasses} / {TOTAL_CLASSES} {t("attendances")}
-                        </Text>
-                    </View>
+                <View style={styles.header}>
+                    <Text style={[styles.title, {color: theme.colors.text}]}>
+                        {t("attendanceStats")}
+                    </Text>
+                    <TouchableOpacity
+                        style={[styles.refreshButton, {backgroundColor: theme.colors.primary}]}
+                        onPress={fetchUsers}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons name="refresh-outline" size={20} color="white"/>
+                    </TouchableOpacity>
                 </View>
-            ))}
-        </ScrollView>
+
+                <View
+                    style={[styles.statsContainer, {backgroundColor: theme.colors.card}]}
+                >
+                    <Text style={[styles.statText, {color: theme.colors.text}]}>
+                        {t("averageAttendance")}:{" "}
+                        <Text style={[styles.statHighlight, {color: theme.colors.primary}]}>
+                            {averagePresence.toFixed(2)}%
+                        </Text>
+                    </Text>
+                </View>
+
+                <View
+                    style={[styles.statsContainer, {backgroundColor: theme.colors.card}]}
+                >
+                    <Text style={[styles.statText, {color: theme.colors.text}]}>
+                        {t("monthlyAverage")}:{" "}
+                        <Text style={[styles.statHighlight, {color: theme.colors.primary}]}>
+                            {monthlyPresence.toFixed(2)}%
+                        </Text>
+                    </Text>
+                    <Text style={[styles.statText, {color: theme.colors.text}]}>
+                        {t("annualAverage")}:{" "}
+                        <Text style={[styles.statHighlight, {color: theme.colors.primary}]}>
+                            {annualPresence.toFixed(2)}%
+                        </Text>
+                    </Text>
+                </View>
+
+                <Text style={[styles.subTitle, {color: theme.colors.text}]}>
+                    {t("attendancePerStudent")}
+                </Text>
+
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{paddingRight: 20}}
+                >
+                    <LineChart
+                        data={{
+                            labels:
+                                sortedUsers.length > 0
+                                    ? sortedUsers.map((user) => user.username.split(".")[0])
+                                    : ["No data"],
+                            datasets: [
+                                {
+                                    data:
+                                        sortedUsers.length > 0
+                                            ? sortedUsers.map((user) => user.attendedClasses)
+                                            : [0],
+                                    strokeWidth: 2,
+                                },
+                            ],
+                        }}
+                        width={Math.max(
+                            Dimensions.get("window").width,
+                            sortedUsers.length * 70
+                        )}
+                        height={220}
+                        chartConfig={{
+                            backgroundColor: theme.colors.card,
+                            backgroundGradientFrom: theme.colors.primary,
+                            backgroundGradientTo: theme.colors.primary,
+                            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                            strokeWidth: 2,
+                            barPercentage: 0.5,
+                            propsForDots: {
+                                r: "5",
+                                strokeWidth: "2",
+                                stroke: theme.colors.primary,
+                            },
+                        }}
+                        style={styles.chart}
+                        bezier
+                    />
+                </ScrollView>
+
+                <Text style={[styles.subTitle, { color: theme.colors.text }]}>
+                    🎖️ {t("top3Students")}
+                </Text>
+
+                {top3Students.map((student, index) => (
+                    <View
+                        key={student.userId}
+                        style={[styles.topStudentContainer, { backgroundColor: theme.colors.card }]}
+                    >
+                        <Avatar rounded size={56} source={{ uri: student.userPicUrl }} />
+                        <View style={styles.userInfo}>
+                            <Text style={[styles.userName, { color: theme.colors.text }]}>
+                                {`${index + 1}º - ${student.username}`}
+                            </Text>
+                            <Text style={[styles.userPresence, { color: theme.colors.primary }]}>
+                                {student.attendedClasses} / {TOTAL_CLASSES} {t("attendances")}
+                            </Text>
+                        </View>
+                    </View>
+                ))}
+            </ScrollView>
+        </>
     );
 };
 
