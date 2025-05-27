@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Dimensions,
     TouchableOpacity,
+    GestureResponderEvent,
 } from "react-native";
 import {LineChart} from "react-native-chart-kit";
 import {useTranslation} from "react-i18next";
@@ -16,6 +17,9 @@ import {User} from "../common/interface/user.interface";
 import {Avatar} from "@rneui/themed";
 import toastService from "../service/toast.service";
 import {Ionicons} from "@expo/vector-icons";
+import {PdfButton} from "../Components/PdfButton";
+import Toast from "react-native-toast-message";
+import ToastService from "../service/toast.service";
 
 export const StatisticsScreen = () => {
     const {t} = useTranslation();
