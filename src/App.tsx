@@ -1,15 +1,31 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import NavigationDrawer from "./navigation/NavigationDrawer";
 import { UserProvider } from "./context/UserContext";
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import './i18n';
 import CustomToast from "./Components/CustomToast";
+import {PdfButton} from "./Components/PdfButton";
+import ToastService from "./service/toast.service";
+import {ReportService} from "./service/report.service";
 
 const AppContent: React.FC = () => {
     const { theme } = useTheme();
 
     const navigationTheme = theme.dark ? DarkTheme : DefaultTheme;
+
+    const [loading, setLoading] = useState(false);
+
+    const handleDownloadReport = async () => {
+        try {
+            setLoading(true);
+            await ReportService.DownloadReport();
+        } catch (error) {
+            ToastService.showError('Erro', 'Falha ao baixar o relatório.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <NavigationContainer
@@ -46,6 +62,7 @@ const AppContent: React.FC = () => {
                 <NavigationDrawer />
             </UserProvider>
             <CustomToast />
+            <PdfButton onPress={handleDownloadReport} loading={loading} />
         </NavigationContainer>
     );
 };
