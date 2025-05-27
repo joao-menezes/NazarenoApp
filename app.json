@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "NazarenoAppFrontend",
+    "slug": "NazarenoAppFrontend",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/img/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./src/assets/img/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "buildNumber": "1.0.0",
+      "supportsTablet": true
+    },
+    "android": {
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      },
+      "package": "com.joaogabriel.presencemanagerapp"
+    },
+    "web": {
+      "favicon": "./src/assets/img/logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "df11fd82-0c3b-44d2-8dc6-6b66d7561535"
+      }
+    }
+  }
+}

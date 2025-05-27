@@ -1,0 +1,30 @@
+{
+  "settings": "Settings",
+  "statistics": "estadística",
+  "logout": "Logout",
+  "darkMode": "Dark Mode",
+  "username": "Username",
+  "saveChanges": "Save Changes",
+  "profile": "Profile",
+  "enterUsername": "Enter your name",
+  "preferences": "Preferences",
+  "notifications": "Notifications",
+  "language": "Language",
+  "security": "Security",
+  "changePassword": "Change Password",
+  "searchPlaceholder": "Search by name or age...",
+  "save": "Save",
+  "age": "years old",
+  "attendanceStats": "Attendance Statistics",
+  "averageAttendance": "Average Attendance",
+  "attendancePerStudent": "Attendance per Student",
+  "presenceListSaved": "presence List Saved",
+  "errorSavingPresenceList": "Rrror Saving Presence List",
+  "monthlyAverage": "média mensal",
+  "annualAverage": "Annual Average",
+  "Toast": {
+    "Success": "Success",
+    "Info": "Info",
+    "Error": "Error"
+  }
+}

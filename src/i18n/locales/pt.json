@@ -1,0 +1,31 @@
+{
+  "settings": "Configurações",
+  "statistics": "Estatísticas",
+  "logout": "Sair",
+  "darkMode": "Modo Escuro",
+  "username": "Nome de Usuário",
+  "saveChanges": "Salvar Alterações",
+  "profile": "Perfil",
+  "enterUsername": "Digite seu nome",
+  "preferences": "Preferências",
+  "notifications": "Notificações",
+  "language": "Idioma",
+  "security": "Segurança",
+  "changePassword": "Alterar Senha",
+  "searchPlaceholder": "Buscar por nome ou idade...",
+  "save": "Salvar",
+  "age": "anos",
+  "attendanceStats": "Estatísticas de Presença",
+  "averageAttendance": "Média de Presença",
+  "attendancePerStudent": "Presença por Aluno",
+  "presenceListSaved": "Lista de presença salva",
+  "errorSavingPresenceList": "erro ao salvar lista de presença",
+  "monthlyAverage": "Média Mensal",
+  "annualAverage": "Média Anual",
+  "Toast": {
+    "Success": "Sucesso",
+    "Info": "Info",
+    "Error": "Erro"
+  }
+}
+
