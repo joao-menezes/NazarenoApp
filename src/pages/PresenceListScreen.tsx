@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
     FlatList,
     StyleSheet,
@@ -18,6 +18,7 @@ import { useTheme } from '../context/ThemeContext';
 import { filterUsers } from '../service/search.service';
 import ToastService from '../service/toast.service';
 import { mockedUser } from '../mocked';
+import {ApiService} from "../service/api.service";
 
 const calculateAge = (birthDate: Date): number => {
     const today = new Date();
@@ -40,25 +41,23 @@ export function PresenceListScreen() {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                setIsLoading(true);
-                // const userData = await ApiService.getUsers();
-                // setUsers(userData);
-                // setFilteredUsers(userData);
-                setUsers(mockedUser);
-                setFilteredUsers(mockedUser);
-            } catch (error) {
-                console.error('Error fetching users:', error);
-                ToastService.showError(t('error'), t('errorFetchingUsers'));
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const fetchUsers = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const userData = await ApiService.getUsers();
+            setUsers(userData.Users);
+            setFilteredUsers(userData.Users);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            ToastService.showError(t('error'), t('errorFetchingUsers'));
+        } finally {
+            setIsLoading(false);
+        }
+    }, [t]);
 
+    useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -90,8 +89,22 @@ export function PresenceListScreen() {
         }
     };
 
+    const onRefresh = async () => {
+        setIsLoading(true);
+        try {
+            const userData = await ApiService.getUsers();
+            setUsers(userData.Users);
+            setFilteredUsers(userData.Users);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            ToastService.showError(t('error'), t('errorFetchingUsers'));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const renderItem = ({ item }: { item: User }) => {
-        const age = calculateAge(item.birthDate);
+        const age = calculateAge(new Date(item.birthDate));
         const isSelected = selectedUserIds.has(item.userId);
 
         return (
@@ -173,7 +186,7 @@ export function PresenceListScreen() {
                 contentContainerStyle={{ paddingBottom: 20 }}
                 showsVerticalScrollIndicator={false}
                 refreshing={isLoading}
-                onRefresh={() => {}}
+                onRefresh={onRefresh}
             />
         </SafeAreaView>
     );

@@ -19,7 +19,8 @@ export const darkTheme: Theme = {
         selectedItem: '#1C1E24',
         avatarBackground: '#2E3A54',
         subtitleText: '#9BA0AA',
-        dark: ""
+        dark: "",
+        error: "#ff4747",
     },
     fonts: {
         regular: 'Arial',

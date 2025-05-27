@@ -19,7 +19,8 @@ export const lightTheme: Theme = {
         selectedItem: '#E3E7F5',
         avatarBackground: '#D0D8F0',
         subtitleText: '#4B4E57',
-        dark: ""
+        dark: "",
+        error: "#ff4747",
     },
     fonts: {
         regular: 'Arial',

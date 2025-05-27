@@ -3,7 +3,8 @@ import {User} from "../common/interface/user.interface";
 
 export class ApiService {
     static api = axios.create({
-        baseURL: 'http://localhost:3000/api',
+        baseURL: 'http://192.168.15.43:3000/api',
+        timeout: 10000,
     });
 
     static async savePresence (presenceList: User[]){
@@ -16,13 +17,20 @@ export class ApiService {
         }
     };
 
-    static async getUsers()  {
+    static async getUsers() {
         try {
-            const response = await ApiService.api.get('/presence');
+            const response = await ApiService.api.get('/users');
+            console.log(response.data);
             return response.data;
-        } catch (error) {
-            console.error("Erro ao pegar os usuarios:", error);
+        } catch (error: any) {
+            if (error.response) {
+                console.error(`Erro na API - status: ${error.response.status}, dados:`, error.response.data);
+            } else if (error.request) {
+                console.error('Nenhuma resposta recebida:', error.request);
+            } else {
+                console.error('Erro ao configurar requisição:', error.message);
+            }
             throw error;
         }
-    };
+    }
 }

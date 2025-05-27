@@ -17,7 +17,8 @@ export type Theme = {
         selectedItem: string;
         avatarBackground: string;
         subtitleText: string;
-        dark: string
+        dark: string;
+        error: string;
     };
     fonts: {
         regular: string;
