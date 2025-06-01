@@ -1,72 +1,77 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {
-    View,
-    Text,
-    ScrollView,
-    StyleSheet,
-    Dimensions,
-    TouchableOpacity,
-    GestureResponderEvent,
-} from "react-native";
-import {LineChart} from "react-native-chart-kit";
-import {useTranslation} from "react-i18next";
-import {useTheme} from "../context/ThemeContext";
-import {ApiService} from "../service/api.service";
-import {RoleEnum} from "../common/enums/role.enum";
-import {User} from "../common/interface/user.interface";
-import {Avatar} from "@rneui/themed";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
+import { LineChart } from "react-native-chart-kit";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "../context/ThemeContext";
+import { ApiService } from "../service/api.service";
+import { RoleEnum } from "../common/enums/role.enum";
+import { User } from "../common/interface/user.interface";
+import { Avatar } from "@rneui/themed";
+import { Ionicons } from "@expo/vector-icons";
 import toastService from "../service/toast.service";
-import {Ionicons} from "@expo/vector-icons";
-import {PdfButton} from "../Components/PdfButton";
-import Toast from "react-native-toast-message";
-import ToastService from "../service/toast.service";
+import { Presence } from "../common/interface/presence.interface";
+import { mockedUser } from "../mocked";
 
 export const StatisticsScreen = () => {
-    const {t} = useTranslation();
-    const {theme} = useTheme();
+    const { t } = useTranslation();
+    const { theme } = useTheme();
 
     const TOTAL_CLASSES = 100;
 
     const [users, setUsers] = useState<User[]>([]);
+    const [presences, setPresences] = useState<Presence[]>([]);
     const [isLoading, setLoading] = useState<boolean>(true);
 
-    const fetchUsers = useCallback(async () => {
+    const fetchData = useCallback(async () => {
+        setLoading(true);
         try {
-            setLoading(true);
+            const [usersResponse, presencesResponse] = await Promise.all([
+                ApiService.getUsers(),
+                ApiService.getPresence(),
+            ]);
 
-            const response = await ApiService.getUsers();
-
-            if (!response?.Users || !Array.isArray(response.Users)) {
+            if (!usersResponse?.Users || !Array.isArray(usersResponse.Users)) {
                 throw new Error(t("invalidResponseStructure"));
             }
 
-            const normalizedUsers = response.Users.map((user: any) => ({
-                userId: user.id,
+            if (!presencesResponse?.Presence || !Array.isArray(presencesResponse.Presence)) {
+                throw new Error(t("invalidResponseStructure"));
+            }
+
+            const normalizedUsers = usersResponse.Users.map((user: any) => ({
+                userId: user.userId,
                 username: user.username,
                 userPicUrl: user.userPicUrl ?? 'https://placehold.co/100x100',
-                attendance: Number(user.attendance) || 0,
-                role: user.role,
             }));
 
             setUsers(normalizedUsers);
+            setPresences(presencesResponse.Presence);
+
         } catch (err) {
-            toastService.showError(t("errorFetchingUsers"));
+            toastService.showError(t("errorFetchingData"));
         } finally {
             setLoading(false);
         }
     }, [t]);
 
-    useEffect(() => {
-        fetchUsers();
-    }, [fetchUsers]);
 
-    const usersWithAttendance = Array.isArray(users)
-        ? users.map(user => ({
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const usersWithAttendance = users.map(user => {
+        const userPresence = presences.find(p => p.userId === user.userId);
+
+        const attendedClasses = userPresence ? userPresence.presenceCount : 0;
+
+        return {
             ...user,
             totalClasses: TOTAL_CLASSES,
-            attendedClasses: Number(user.attendance) || 0,
-        }))
-        : [];
+            attendedClasses,
+        };
+    });
+
+
 
     const totalPresence = usersWithAttendance.reduce(
         (acc, user) => acc + user.attendedClasses,
@@ -88,102 +93,66 @@ export const StatisticsScreen = () => {
         usersWithAttendance.length
     );
 
-    const monthlyPresence = calculatePresencePercentage(
-        totalPresence,
-        TOTAL_CLASSES,
-        usersWithAttendance.length
-    );
-
-    const annualPresence = calculatePresencePercentage(
-        totalPresence,
-        240,
-        usersWithAttendance.length
-    );
-
     const sortedUsers = [...usersWithAttendance].sort(
         (a, b) => b.attendedClasses - a.attendedClasses
     );
 
-    const top3Students = sortedUsers
-        .filter(user => user.role === RoleEnum.Student)
-        .slice(0, 3);
+    const chartData = React.useMemo(() => ({
+        labels:
+            sortedUsers.length > 0
+                ? sortedUsers.map(user => user.username.split(".")[0])
+                : ["No data"],
+        datasets: [
+            {
+                data:
+                    sortedUsers.length > 0
+                        ? sortedUsers.map(user => user.attendedClasses)
+                        : [0],
+                strokeWidth: 2,
+            },
+        ],
+    }), [sortedUsers]);
 
     return (
         <>
             <ScrollView
-                style={[styles.container, {backgroundColor: theme.colors.background}]}
+                style={[styles.container, { backgroundColor: theme.colors.background }]}
                 contentContainerStyle={styles.scrollContent}
             >
                 <View style={styles.header}>
-                    <Text style={[styles.title, {color: theme.colors.text}]}>
+                    <Text style={[styles.title, { color: theme.colors.text }]}>
                         {t("attendanceStats")}
                     </Text>
                     <TouchableOpacity
-                        style={[styles.refreshButton, {backgroundColor: theme.colors.primary}]}
-                        onPress={fetchUsers}
+                        style={[styles.refreshButton, { backgroundColor: theme.colors.primary }]}
+                        onPress={fetchData}
                         activeOpacity={0.7}
                     >
-                        <Ionicons name="refresh-outline" size={20} color="white"/>
+                        <Ionicons name="refresh-outline" size={20} color="white" />
                     </TouchableOpacity>
                 </View>
 
-                <View
-                    style={[styles.statsContainer, {backgroundColor: theme.colors.card}]}
-                >
-                    <Text style={[styles.statText, {color: theme.colors.text}]}>
+                <View style={[styles.statsContainer, { backgroundColor: theme.colors.card }]}>
+                    <Text style={[styles.statText, { color: theme.colors.text }]}>
                         {t("averageAttendance")}:{" "}
-                        <Text style={[styles.statHighlight, {color: theme.colors.primary}]}>
+                        <Text style={[styles.statHighlight, { color: theme.colors.primary }]}>
                             {averagePresence.toFixed(2)}%
                         </Text>
                     </Text>
                 </View>
 
-                <View
-                    style={[styles.statsContainer, {backgroundColor: theme.colors.card}]}
-                >
-                    <Text style={[styles.statText, {color: theme.colors.text}]}>
-                        {t("monthlyAverage")}:{" "}
-                        <Text style={[styles.statHighlight, {color: theme.colors.primary}]}>
-                            {monthlyPresence.toFixed(2)}%
-                        </Text>
-                    </Text>
-                    <Text style={[styles.statText, {color: theme.colors.text}]}>
-                        {t("annualAverage")}:{" "}
-                        <Text style={[styles.statHighlight, {color: theme.colors.primary}]}>
-                            {annualPresence.toFixed(2)}%
-                        </Text>
-                    </Text>
-                </View>
-
-                <Text style={[styles.subTitle, {color: theme.colors.text}]}>
+                <Text style={[styles.subTitle, { color: theme.colors.text }]}>
                     {t("attendancePerStudent")}
                 </Text>
 
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{paddingRight: 20}}
+                    contentContainerStyle={{ paddingRight: 20 }}
                 >
                     <LineChart
-                        data={{
-                            labels:
-                                sortedUsers.length > 0
-                                    ? sortedUsers.map((user) => user.username.split(".")[0])
-                                    : ["No data"],
-                            datasets: [
-                                {
-                                    data:
-                                        sortedUsers.length > 0
-                                            ? sortedUsers.map((user) => user.attendedClasses)
-                                            : [0],
-                                    strokeWidth: 2,
-                                },
-                            ],
-                        }}
-                        width={Math.max(
-                            Dimensions.get("window").width,
-                            sortedUsers.length * 70
-                        )}
+                        data={chartData}
+                        width={Math.max(Dimensions.get("window").width, sortedUsers.length * 70)}
                         height={220}
                         chartConfig={{
                             backgroundColor: theme.colors.card,
@@ -208,7 +177,7 @@ export const StatisticsScreen = () => {
                     🎖️ {t("top3Students")}
                 </Text>
 
-                {top3Students.map((student, index) => (
+                {sortedUsers.map((student, index) => (
                     <View
                         key={student.userId}
                         style={[styles.topStudentContainer, { backgroundColor: theme.colors.card }]}
@@ -244,7 +213,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     refreshButton: {
-        borderRadius: 15, // círculo perfeito (30/2)
+        borderRadius: 15,
         width: 30,
         height: 30,
         justifyContent: "center",
@@ -314,4 +283,3 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
 });
-

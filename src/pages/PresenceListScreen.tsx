@@ -50,6 +50,8 @@ export function PresenceListScreen() {
         } catch (error) {
             console.error('Error fetching users:', error);
             ToastService.showError(t('error'), t('errorFetchingUsers'));
+            // setUsers(mockedUser);
+            // setFilteredUsers(mockedUser);
         } finally {
             setIsLoading(false);
         }

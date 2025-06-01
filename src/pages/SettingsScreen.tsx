@@ -38,27 +38,6 @@ export const SettingsScreen: React.FC = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
 
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: theme.colors.subtitleText }]}>{t('profile')}</Text>
-
-                    <View style={styles.settingItem}>
-                        <Text style={[styles.settingLabel, { color: theme.colors.text }]}>{t('username')}</Text>
-                        <TextInput
-                            style={[
-                                styles.input,
-                                {
-                                    backgroundColor: theme.colors.inputBackground,
-                                    color: theme.colors.inputText,
-                                },
-                            ]}
-                            value={username}
-                            onChangeText={setUsername}
-                            placeholder={t('enterUsername')}
-                            placeholderTextColor={theme.colors.placeholder}
-                        />
-                    </View>
-                </View>
-
-                <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: theme.colors.subtitleText, fontSize: 15 }]}>{t('preferences')}</Text>
 
                     <Text style={[styles.sectionTitle, { color: theme.colors.subtitleText }]}>{t('language')}</Text>

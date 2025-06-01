@@ -5,9 +5,7 @@ export interface User {
     userPicUrl: string;
     username: string;
     birthDate: Date;
-    age: number;
-    roomName: string;
+    roomId: string;
     role: RoleEnum;
     phoneNumber: string;
-    attendance: number;
 }
