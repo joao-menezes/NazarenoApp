@@ -1,6 +1,7 @@
 {
   "settings": "Configurações",
   "statistics": "Estatísticas",
+  "presenceList": "Lista de Presença",
   "logout": "Sair",
   "darkMode": "Modo Escuro",
   "username": "Nome de Usuário",
@@ -19,13 +20,17 @@
   "averageAttendance": "Média de Presença",
   "attendancePerStudent": "Presença por Aluno",
   "presenceListSaved": "Lista de presença salva",
-  "errorSavingPresenceList": "erro ao salvar lista de presença",
+  "errorSavingPresenceList": "Erro ao salvar lista de presença",
+  "noUsersFound": "Nenhum usuário encontrado",
+  "noUsersSelected": "Nenhum usuário selecionado",
+  "errorFetchingData": "Erro ao buscar dados",
+  "top3Students": "Top 3 Alunos",
   "monthlyAverage": "Média Mensal",
   "annualAverage": "Média Anual",
+  "attention": "Atenção",
   "Toast": {
     "Success": "Sucesso",
-    "Info": "Info",
+    "Info": "Informação",
     "Error": "Erro"
   }
 }
-

@@ -1,4 +1,5 @@
 import { User } from "../common/interface/user.interface";
+import {calculateAge} from "../pages/PresenceListScreen";
 
 export const normalizeText = (text: string) => {
     return text
@@ -16,7 +17,7 @@ export const filterUsers = (users: User[], query: string): User[] => {
         const normalizedUsername = normalizeText(user.username.toLowerCase());
 
         const matchesUsername = normalizedUsername.includes(normalizedQuery);
-        const matchesAge = user.age.toString().includes(normalizedQuery);
+        const matchesAge = calculateAge(user.birthDate).toString().includes(normalizedQuery);
 
         return matchesUsername || matchesAge;
     });

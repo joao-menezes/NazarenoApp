@@ -13,7 +13,11 @@
     },
     "ios": {
       "buildNumber": "1.0.0",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.joaomenezes.nazarenoapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "versionCode": 1,
@@ -27,8 +31,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "df11fd82-0c3b-44d2-8dc6-6b66d7561535"
+        "projectId": "d34dec0a-caf7-4825-8e73-af7ed8943de9"
       }
-    }
+    },
+    "owner": "joao-gabriel"
   }
 }

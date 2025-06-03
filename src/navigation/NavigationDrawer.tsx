@@ -14,11 +14,13 @@ import { StatisticsScreen } from "../pages/StatisticsScreen";
 import { useTheme } from "../context/ThemeContext";
 import {CardDivider} from "@rneui/base/dist/Card/Card.Divider";
 import {useTranslation} from "react-i18next";
+import {HistoryScreen} from "../pages/HistoryScreen";
 
 type DrawerParamList = {
     "student list": undefined;
     Settings: undefined;
     Statistics: undefined;
+    History: undefined;
 };
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
@@ -53,7 +55,7 @@ export default function NavigationDrawer() {
                     headerRight: () => (
                         <Pressable
                             style={{ marginRight: 15 }}
-                            onPress={() => console.log("")}
+                            onPress={() => navigation.navigate("History")}
                         >
                             <Ionicons name="time-outline" size={24} color="#007bff" />
                         </Pressable>
@@ -74,6 +76,10 @@ export default function NavigationDrawer() {
                     title: t('statistics'),
                 }}
             />
+            <Drawer.Screen
+                name="History"
+                component={HistoryScreen}
+                options={{ title: 'Histórico' }} />
         </Drawer.Navigator>
     );
 }
@@ -97,7 +103,7 @@ function CustomDrawerContent(props: any) {
                 </View>
 
                 <DrawerItem
-                    label="Lista de Presença"
+                    label={t('presenceList')}
                     icon={({ color }) => <Ionicons name="list-outline" size={22} color={color} />}
                     labelStyle={{ color: theme.colors.text }}
                     onPress={() => {
@@ -108,7 +114,7 @@ function CustomDrawerContent(props: any) {
                 />
                 <CardDivider/>
                 <DrawerItem
-                    label="Estatísticas"
+                    label={t('statistics')}
                     icon={({ color }) => <Ionicons name="stats-chart-outline" size={22} color={color} />}
                     labelStyle={{ color: theme.colors.text }}
                     onPress={() => props.navigation.navigate("Statistics")}
@@ -131,7 +137,6 @@ function CustomDrawerContent(props: any) {
                     <Ionicons name="settings-outline" size={22} color={theme.colors.footerText} />
                     <Text style={[styles.footerText, { color: theme.colors.footerText }]}>{t('settings')}</Text>
                 </Pressable>
-
 
                 <Pressable
                     style={({ pressed }) => [

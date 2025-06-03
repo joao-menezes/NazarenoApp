@@ -19,8 +19,9 @@ import { filterUsers } from '../service/search.service';
 import ToastService from '../service/toast.service';
 import { mockedUser } from '../mocked';
 import {ApiService} from "../service/api.service";
+import {Skeleton} from "@rneui/base";
 
-const calculateAge = (birthDate: Date): number => {
+export const calculateAge = (birthDate: Date): number => {
     const today = new Date();
     const birth = new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
@@ -36,6 +37,7 @@ export function PresenceListScreen() {
     const { t } = useTranslation();
 
     const [users, setUsers] = useState<User[]>([]);
+    const [noUsersMessage , setNoUsersMessage ] = useState<string>('');
     const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -44,21 +46,31 @@ export function PresenceListScreen() {
     const fetchUsers = useCallback(async () => {
         try {
             setIsLoading(true);
+            setNoUsersMessage('');
+
             const userData = await ApiService.getUsers();
-            setUsers(userData.Users);
-            setFilteredUsers(userData.Users);
+            const users = userData.Users || [];
+
+            setUsers(users);
+            setFilteredUsers(users);
+
+            if (users.length === 0) {
+                setNoUsersMessage(t('noUsersFound'));
+            }
+
         } catch (error) {
             console.error('Error fetching users:', error);
             ToastService.showError(t('error'), t('errorFetchingUsers'));
-            // setUsers(mockedUser);
-            // setFilteredUsers(mockedUser);
+            setNoUsersMessage(t('errorFetchingUsers'));
         } finally {
             setIsLoading(false);
         }
     }, [t]);
 
     useEffect(() => {
-        fetchUsers();
+        fetchUsers().then(r => {
+            console.log("Fetching Data");
+        });
     }, [fetchUsers]);
 
     const handleSearch = (query: string) => {
@@ -179,6 +191,11 @@ export function PresenceListScreen() {
                 <Ionicons name="save-outline" size={20} color="#fff" />
                 <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
+            {noUsersMessage !== '' && (
+                <Text style={styles.emptyMessage}>
+                    {noUsersMessage}
+                </Text>
+            )}
 
             <FlatList
                 data={filteredUsers}
@@ -268,5 +285,12 @@ const styles = StyleSheet.create({
     age: {
         fontSize: 14,
         marginTop: 2,
+    },
+    emptyMessage: {
+        textAlign: 'center',
+        marginTop: 32,
+        fontSize: 16,
+        color: '#6e6e6e',
+        fontWeight: '500',
     },
 });

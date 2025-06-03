@@ -1,6 +1,7 @@
 import * as FileSystem from 'expo-file-system';
 import { ApiService } from "./api.service";
 import ToastService from "./toast.service";
+import * as Sharing from 'expo-sharing';
 
 export class ReportService {
 
@@ -9,8 +10,8 @@ export class ReportService {
         const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
         const downloadUrl = `${ApiService.api.defaults.baseURL}/report`;
-
         try {
+
             console.log(`Iniciando download de ${downloadUrl} para ${fileUri}`);
 
             const downloadResumable= FileSystem.createDownloadResumable(
@@ -61,6 +62,15 @@ export class ReportService {
 
             console.log(`Arquivo salvo com sucesso em: ${downloadResponse.uri}`);
             ToastService.showSuccess('Sucesso', 'Relatório baixado com sucesso.');
+
+            if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(downloadResponse.uri);
+                ToastService.showSuccess('Sucesso', 'Relatório baixado com sucesso.');
+            } else {
+                console.warn('Sharing não está disponível neste dispositivo.');
+                ToastService.showInfo('Atenção', 'O compartilhamento não está disponível neste dispositivo.');
+            }
+
             return downloadResponse.uri;
 
         } catch (error: any) {
@@ -69,7 +79,7 @@ export class ReportService {
             if (error.message) {
                 errorMessage += `\nDetalhes: ${error.message}`;
             }
-            throw error;
+            throw error+` ${errorMessage}`;
         }
     }
 }

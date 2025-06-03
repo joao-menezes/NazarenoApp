@@ -4,13 +4,11 @@ import { LineChart } from "react-native-chart-kit";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContext";
 import { ApiService } from "../service/api.service";
-import { RoleEnum } from "../common/enums/role.enum";
 import { User } from "../common/interface/user.interface";
 import { Avatar } from "@rneui/themed";
 import { Ionicons } from "@expo/vector-icons";
 import toastService from "../service/toast.service";
 import { Presence } from "../common/interface/presence.interface";
-import { mockedUser } from "../mocked";
 
 export const StatisticsScreen = () => {
     const { t } = useTranslation();
@@ -48,7 +46,7 @@ export const StatisticsScreen = () => {
             setPresences(presencesResponse.Presence);
 
         } catch (err) {
-            toastService.showError(t("errorFetchingData"));
+            toastService.showError(t('error'), t("errorFetchingData"));
         } finally {
             setLoading(false);
         }
@@ -56,7 +54,9 @@ export const StatisticsScreen = () => {
 
 
     useEffect(() => {
-        fetchData();
+        fetchData().then(r => {
+            console.log("Fetching Data");
+        });
     }, [fetchData]);
 
     const usersWithAttendance = users.map(user => {
@@ -70,8 +70,6 @@ export const StatisticsScreen = () => {
             attendedClasses,
         };
     });
-
-
 
     const totalPresence = usersWithAttendance.reduce(
         (acc, user) => acc + user.attendedClasses,
